@@ -1,39 +1,21 @@
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: redis-statefulset
-spec:
-  serviceName: redis-svc
-  replicas: {{ .Values.redis.replicas | default 1 }}
-  selector:
-    matchLabels:
-      app: redis
-  template:
-    metadata:
-      labels:
-        app: redis
-    spec:
-      containers:
-      - name: redis
-        image: {{ .Values.redis.image }}
-        ports:
-        - containerPort: {{ .Values.redis.service.port }}
-        env:
-        - name: REDIS_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: redis-password
-              key: REDIS_PASSWORD
-        command: ["redis-server"]
-        args: ["--requirepass", "$(REDIS_PASSWORD)"]
-        volumeMounts:
-        - name: redis-data
-          mountPath: /data
-  volumeClaimTemplates:
-  - metadata:
-      name: redis-data
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 1Gi
+replicaCount: 1
+backend:
+  image: shreybatra/sample-backend
+  service:
+    type: ClusterIP
+    port: 8000
+  env:
+    REDIS_URI: redis://redis-svc:6379
+frontend:
+  image: shreybatra/sample-frontend
+  service:
+    type: NodePort
+    port: 5175
+    nodePort: 31000
+  env:
+    BACKEND_URL: http://backend-svc:8000
+redis:
+  image: redis
+  service:
+    type: ClusterIP
+    port: 6379
