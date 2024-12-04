@@ -1,10 +1,10 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  name: redis
-  namespace: default
+  name: redis-statefulset
 spec:
-  replicas: {{ .Values.replicaCount }}
+  serviceName: redis-svc
+  replicas: {{ .Values.redis.replicas }}
   selector:
     matchLabels:
       app: redis
@@ -17,10 +17,15 @@ spec:
       - name: redis
         image: {{ .Values.redis.image }}
         ports:
-        - containerPort: {{ .Values.redis.service.port }}
-        env:
-        - name: REDIS_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: redis-secret
-              key: password
+        - containerPort: {{ .Values.redis.port }}
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
