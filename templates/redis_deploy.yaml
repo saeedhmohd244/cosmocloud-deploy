@@ -4,7 +4,7 @@ metadata:
   name: redis-statefulset
 spec:
   serviceName: redis-svc
-  replicas: 1
+  replicas: {{ .Values.redis.replicas | default 1 }}
   selector:
     matchLabels:
       app: redis
@@ -15,17 +15,17 @@ spec:
     spec:
       containers:
       - name: redis
-        image: redis
+        image: {{ .Values.redis.image }}
         ports:
-        - containerPort: 6379
-        command: ["redis-server"]
-        args: ["--requirepass", "$(REDIS_PASSWORD)"]
+        - containerPort: {{ .Values.redis.service.port }}
         env:
         - name: REDIS_PASSWORD
           valueFrom:
             secretKeyRef:
               name: redis-password
-              key: password
+              key: REDIS_PASSWORD
+        command: ["redis-server"]
+        args: ["--requirepass", "$(REDIS_PASSWORD)"]
         volumeMounts:
         - name: redis-data
           mountPath: /data
