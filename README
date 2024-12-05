@@ -29,3 +29,4 @@ To install the chart, use the following command:
 ```sh
 helm install testapp cosmocloud-deploy --atomic 
 
+I have deployed redis as statefulset as well as simple deployment if you want to try as deployment please use the master branch
