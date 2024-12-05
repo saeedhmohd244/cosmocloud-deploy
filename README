@@ -1,32 +1,122 @@
-# cosmocloud-deploy
+# Cosmocloud Deploy Helm Chart
 
-This Helm chart deploys a backend, frontend, and Redis instance with the following configurations:
+This Helm chart simplifies the deployment of a **backend**, **frontend**, and **Redis** instance with configurable options.
+
+---
+
+## Features
+
+- Easily deploy a backend, frontend, and Redis.
+- Supports configuration through environment variables.
+- Includes options to deploy Redis as a StatefulSet or Deployment.
+- Atomic installation for seamless deployment.
+
+---
 
 ## Deployment Configuration
 
-- **Backend**
-  - Image: `shreybatra/sample-backend`
-  - Environment Variable: `REDIS_URI=redis://redis-svc:6379`
-  - Service Type: `ClusterIP`
-  - Port: `8000`
+### **Backend**
+- **Image**: `shreybatra/sample-backend`
+- **Environment Variable**: `REDIS_URI=redis://redis-svc:6379`
+- **Service Type**: `ClusterIP`
+- **Port**: `8000`
 
-- **Frontend**
-  - Image: `shreybatra/sample-frontend`
-  - Environment Variable: `BACKEND_URL=http://backend-svc:8000`
-  - Service Type: `NodePort`
-  - Port: `5175`
-  - NodePort: `31000`
+### **Frontend**
+- **Image**: `shreybatra/sample-frontend`
+- **Environment Variable**: `BACKEND_URL=http://backend-svc:8000`
+- **Service Type**: `NodePort`
+- **Port**: `5175`
+- **NodePort**: `31000`
 
-- **Redis**
-  - Image: `redis`
-  - Service Type: `ClusterIP`
-  - Port: `6379`
+### **Redis**
+- **Image**: `redis`
+- **Service Type**: `ClusterIP`
+- **Port**: `6379`
+
+---
 
 ## Installation
 
-To install the chart, use the following command:
+To install this Helm chart with an atomic deployment, run:
 
 ```sh
-helm install testapp cosmocloud-deploy --atomic 
+helm install testapp cosmocloud-deploy --atomic
+```
 
-I have deployed redis as statefulset as well as simple deployment if you want to try as deployment please use the master branch
+---
+
+## Redis Deployment Options
+
+This chart provides two options for deploying Redis:
+
+1. **StatefulSet** (Recommended for persistence and scaling)
+2. **Deployment** (Simpler for stateless use cases)
+
+- To deploy Redis as a **StatefulSet**, ensure you're using the default configuration.
+- To deploy Redis as a **Deployment**, switch to the `master` branch:
+
+```sh
+# Clone the master branch for Deployment configuration
+git checkout master
+```
+
+---
+
+## Accessing the Application
+
+- **Frontend**:  
+  Access the frontend at `http://<NodeIP>:31000`.
+  
+- **Backend**:  
+  Accessible internally within the cluster at `http://backend-svc:8000`.
+
+- **Redis**:  
+  Access internally at `redis://redis-svc:6379`.
+
+---
+
+## Customization
+
+You can override default values using a custom `values.yaml` file. Example:
+
+```yaml
+backend:
+  image: custom-backend-image
+  service:
+    port: 8080
+
+frontend:
+  image: custom-frontend-image
+  service:
+    nodePort: 32000
+
+redis:
+  service:
+    type: LoadBalancer
+```
+
+To deploy with custom values:
+
+```sh
+helm install testapp cosmocloud-deploy -f values.yaml --atomic
+```
+
+---
+
+## Troubleshooting
+
+- Use `helm status testapp` to check the status of your deployment.
+- Use `kubectl logs` for backend, frontend, or Redis pods to debug issues.
+
+---
+
+## Contributing
+
+Contributions are welcome! Feel free to open issues or create pull requests for improvements.
+
+---
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
